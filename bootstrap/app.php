@@ -23,9 +23,9 @@ $app = new Laravel\Lumen\Application(
     realpath(__DIR__.'/../')
 );
 
-// $app->withFacades();
+$app->withFacades();
 
-// $app->withEloquent();
+$app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------
@@ -81,6 +81,20 @@ $app->singleton(
 // $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
+
+$app->middleware([
+    Illuminate\Session\Middleware\StartSession::class
+]);
+$app->configure('auth');
+$app->configure('module');
+$app->configure('session');
+$app->bind(Illuminate\Session\SessionManager::class, function ($app) {
+    return $app->make('session');
+});
+$app->register(Illuminate\Cookie\CookieServiceProvider::class);
+$app->register(Illuminate\Redis\RedisServiceProvider::class);
+$app->register(Illuminate\Session\SessionServiceProvider::class);
+$app->register(LaravelModule\ServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------

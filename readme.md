@@ -1,21 +1,63 @@
-# Lumen PHP Framework
+# lumen-easyui
 
-[![Build Status](https://travis-ci.org/laravel/lumen-framework.svg)](https://travis-ci.org/laravel/lumen-framework)
-[![Total Downloads](https://poser.pugx.org/laravel/lumen-framework/d/total.svg)](https://packagist.org/packages/laravel/lumen-framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/lumen-framework/v/stable.svg)](https://packagist.org/packages/laravel/lumen-framework)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/lumen-framework/v/unstable.svg)](https://packagist.org/packages/laravel/lumen-framework)
-[![License](https://poser.pugx.org/laravel/lumen-framework/license.svg)](https://packagist.org/packages/laravel/lumen-framework)
+基于`lumen`框架和`wangdong/laravel-module-easyui`包组成
 
-Laravel Lumen is a stunningly fast PHP micro-framework for building web applications with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Lumen attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as routing, database abstraction, queueing, and caching.
+## docker环境
 
-## Official Documentation
+> 环境启动
 
-Documentation for the framework can be found on the [Lumen website](http://lumen.laravel.com/docs).
+```
+# 启动docker环境
+docker-compose up -d
+```
 
-## Security Vulnerabilities
+> composer私有仓库配置
 
-If you discover a security vulnerability within Lumen, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
+修改本地host
 
-## License
+```
+127.0.0.1 packagist.test
+```
 
-The Lumen framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+浏览器访问 http://packagist.test 初始化设置
+
+> 系统配置
+
+```
+# 创建.env文件
+docker-compose exec php cp .env.example .env
+
+# 安装composer包
+docker-compose exec php composer install
+
+# 复制文件
+docker-compose exec php php artisan module:publish
+
+# 处理上一步中新增php类
+docker-compose exec php composer dumpautoload
+
+# 初始化数据
+docker-compose exec php php artisan module.wangdong.easyui:migrate
+```
+
+> 开发
+
+功能模块目录`module/group_name/module_name`
+
+```
+docker-compose exec php php artisan module.wangdong.easyui:init group_name/module_name
+```
+
+> 数据库管理
+
+浏览器访问 http://127.0.0.1:8080
+
+- 系统	PostgreSQL
+- 服务器	postgres
+- 用户名	postgres
+- 密码	postgres
+- 数据库  postgres
+
+> web编辑器
+
+浏览器访问 http://127.0.0.1:8181

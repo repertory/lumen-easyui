@@ -1,0 +1,98 @@
+version: '2.1'
+
+volumes:
+  toran-proxy-data:
+    driver: local
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+
+services:
+  toran-proxy:
+    image: registry.cn-hangzhou.aliyuncs.com/wangdong/toran-proxy:latest
+    restart: always
+    volumes:
+      - toran-proxy-data:/toran
+  postgres:
+    image: postgres:alpine
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+  redis:
+    image: redis:alpine
+    restart: always
+    volumes:
+      - redis-data:/data
+  php:
+    image: registry.cn-hangzhou.aliyuncs.com/wangdong/php:latest
+    restart: always
+    links:
+      - toran-proxy:packagist.test
+    volumes:
+      - .:/var/www/html
+  nginx:
+    image: nginx:alpine
+    restart: always
+    links:
+      - toran-proxy
+    volumes_from:
+      - php
+    environment:
+      NGINX_CONFIG: |
+        server {
+            listen       80 default_server;
+            server_name  localhost;
+
+            set_real_ip_from  172.0.0.0/8;
+            set_real_ip_from  10.0.0.0/8;
+            real_ip_header    X-Forwarded-For;
+            real_ip_recursive on;
+
+            root   /var/www/html/public;
+            index  index.html index.htm index.php;
+
+            location / {
+                try_files $$uri $$uri/ /index.php?$$query_string;
+            }
+
+            location ~ \.php$$ {
+                fastcgi_pass   php:9000;
+                fastcgi_index  index.php;
+                fastcgi_param  SCRIPT_FILENAME $$document_root$$fastcgi_script_name;
+                include        fastcgi_params;
+            }
+        }
+
+        upstream packagist.test {
+          server  toran-proxy;
+        }
+
+        server {
+            listen       80;
+            server_name  packagist.test;
+
+            location / {
+                proxy_pass         http://packagist.test;
+                proxy_set_header   Host             $$host;
+                proxy_set_header   X-Real-IP        $$remote_addr;
+                proxy_set_header   X-Forwarded-For  $$proxy_add_x_forwarded_for;
+            }
+        }
+    command: /bin/sh -c 'echo "$$NGINX_CONFIG" > /etc/nginx/conf.d/default.conf && exec nginx -g "daemon off;"'
+    ports:
+      - "80:80"
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+  c9:
+    image: registry.cn-hangzhou.aliyuncs.com/wangdong/cloud9:latest
+    restart: always
+    volumes_from:
+      - php
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8181:8181"

@@ -1,5 +1,8 @@
 /vendor
 /.idea
+/.vscode
+/.c9
+composer.lock
 Homestead.json
 Homestead.yaml
 .env
