@@ -1,0 +1,51 @@
+{
+    "name": "system/user",
+    "description": "module for laravel-module",
+    "type": "laravel-module",
+    "authors": [{
+        "name": "wangdong",
+        "email": "mail@wangdong.io"
+    }],
+    "autoload": {
+        "psr-4": {
+            "Module\\System\\User\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel-module": {
+            "config": {
+                "name": "system/user"
+            },
+            "middleware": [],
+            "module": {
+                "name": "system/user",
+                "time": "2018-07-06T09:25:23+08:00",
+                "from": {
+                    "php": "7.2.6",
+                    "framework": "laravel",
+                    "version": "5.6.26"
+                }
+            }
+        },
+        "wangdong-easyui": {
+            "module": {
+                "group": "系统管理",
+                "name": "用户管理",
+                "icon": "fa fa-user",
+                "sort": 2,
+                "menu": true,
+                "auth": true,
+                "acl": true
+            },
+            "alias": {
+                "getIndex": "查看"
+            },
+            "auth": {
+                "查看": true
+            },
+            "acl": {
+                "查看": true
+            }
+        }
+    }
+}
