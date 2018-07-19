@@ -4,8 +4,8 @@
         <a class="easyui-linkbutton" iconCls="fa fa-plus" plain="true" method="create">添加</a>
         <a class="easyui-linkbutton" iconCls="fa fa-minus" plain="true" method="destroy">删除</a>
         <a class="easyui-linkbutton" iconCls="fa fa-filter" plain="true" method="filter">筛选</a>
-        <a class="easyui-splitbutton" splitbutton="filter" iconCls="fa fa-file-excel-o" plain="true">导出</a>
-        <a class="easyui-splitbutton" splitbutton="print" iconCls="fa fa-print" plain="true">打印</a>
+        <a class="easyui-splitbutton" iconCls="fa fa-file-excel-o" plain="true" splitbutton="filter">导出</a>
+        <a class="easyui-splitbutton" iconCls="fa fa-print" plain="true" splitbutton="print">打印</a>
     </div>
 
     <div class="splitbutton" style="display: none;">
@@ -20,7 +20,9 @@
         </div>
     </div>
 
-    <div class="datagrid" fit="true" border="false"></div>
+    <div class="datagrid" fit="true" border="false" url="{{ module_url('system/user') }}"></div>
+
+    <div class="dialog"></div>
 
 </div>
 
@@ -28,12 +30,15 @@
     $(':host').options({
         datagrid: $('.datagrid', ':host'),
         toolbar: $('.toolbar', ':host'),
+        dialog: $('.dialog', ':host'),
         filterbar: false,
+        // 初始化
         init: function () {
             this.event();
             this.initSplitbutton();
             this.initDatagrid();
         },
+        // 事件监听
         event: function () {
             var self = this;
             $('[method]', ':host').on('click', function () {
@@ -41,6 +46,7 @@
                 typeof self[method] === 'function' && self[method].call(self, this);
             });
         },
+        // 初始化下拉菜单
         initSplitbutton: function() {
             $('[splitbutton]', ':host').each(function() {
                 var splitbutton = $(this).attr('splitbutton');
@@ -48,9 +54,11 @@
                 menu && $(this).splitbutton({menu: menu});
             });
         },
+        // 初始化数据列表
         initDatagrid: function() {
             var self = this;
             this.datagrid.datagrid({
+                // 默认参数
                 toolbar: self.toolbar,
                 frozenColumns: [[
                     {field:'ck',checkbox:true},
@@ -61,7 +69,6 @@
                     {field:'created_at',title:'创建时间',width:150,sortable:true,export:true},
                     {field:'updated_at',title:'修改时间',width:150,sortable:true,export:true},
                 ]],
-                url: '{{ module_url('system/user') }}',
                 rownumbers: true,
                 singleSelect: false,
                 ctrlSelect: true,
@@ -72,18 +79,22 @@
                 loadFilter: function (data) {
                     return {rows: data.data, total: data.total};
                 },
+                // 筛选参数
                 clientPaging: false,
                 remoteFilter: true,
+                // detailview参数
                 view: $.easyui.extension.datagrid.detailview,
                 detailFormatter: function (index, row) {
                     return '<div class="form"></div>';
                 },
                 onExpandRow: function (index, row) {
+                    if(!row.id) return;
+
                     var form = $(this).datagrid('getRowDetail', index).find('div.form');
                     form.panel({
                         border: false,
                         cache: true,
-                        href: row.id ? '{{ module_url('system/user/edit') }}?id=' + row.id : '{{ module_url('system/user/create') }}',
+                        href: '{{ module_url('system/user/edit') }}?id=' + row.id,
                         onLoad: function () {
                             self.datagrid.datagrid('fixDetailRowHeight', index);
                             self.datagrid.datagrid('selectRow', index);
@@ -94,12 +105,52 @@
                 }
             });
         },
+        // 添加
         create: function () {
-            this.datagrid.datagrid('appendRow', {isNewRecord: true});
-            var index = this.datagrid.datagrid('getRows').length - 1;
-            this.datagrid.datagrid('expandRow', index);
-            this.datagrid.datagrid('selectRow', index);
+            var self = this;
+
+            this.dialog.dialog({
+                title: '添加用户',
+                iconCls: 'fa fa-plus',
+                modal: true,
+                border: 'thin',
+                width: '360px',
+                constrain: true,
+                href: '{{ module_url('system/user/create') }}',
+                onLoad: function() {
+                    self.dialog.dialog('center');
+                },
+                buttons:[{
+                    text: '保存',
+                    iconCls: 'fa fa-save',
+                    handler: function() {
+                        var form = self.dialog.find('form');
+                        if(!form) return;
+
+                        form.form('ajax', {
+                            progressbar: '数据发送中...',
+                            url: '{{ module_url('system/user/create') }}',
+                            onSubmit: function () {
+                                return $(this).form('validate');
+                            },
+                            success: function () {
+                                $.messager.success('操作提示', '添加成功');
+                                self.dialog.dialog('close');
+                            },
+                            error: '操作提示'
+                        });
+
+                    }
+                },{
+                    text: '取消',
+                    iconCls: 'fa fa-close',
+                    handler: function() {
+                        self.dialog.dialog('close');
+                    }
+                }]
+            });
         },
+        // 删除
         destroy: function () {
             var rows = this.datagrid.datagrid('getSelections');
             if (rows.length) {
@@ -108,7 +159,7 @@
                     if (!r) return false;
 
                     // ajax请求
-                    {{--  $.ajax({
+                    $.ajax({
                         url: '{{ module_url('system/user/delete') }}',
                         type: 'DELETE',
                         contentType:"application/json",
@@ -116,26 +167,27 @@
                             return row.id;
                         })},
                         success: function(data){
-                            console.log(data);
+                            rows
+                                .map(function(row) {
+                                    return self.datagrid.datagrid('getRowIndex', row);
+                                })
+                                .sort()
+                                .reverse()
+                                .map(function(index) {
+                                    return self.datagrid.datagrid('deleteRow', index);
+                                });
+                            $.messager.error('操作提示', '删除成功');
                         },
-                        error: function(err) {
-                            console.error(err);
+                        error: function(xhr) {
+                            $.messager.error('操作提示', xhr.responseJSON ? xhr.responseJSON.message : '删除失败');
                         }
-                    });  --}}
+                    });
 
-                    // 删除选中行
-                    rows
-                        .map(function(row) {
-                            return self.datagrid.datagrid('getRowIndex', row);
-                        })
-                        .sort()
-                        .reverse()
-                        .map(function(index) {
-                            return self.datagrid.datagrid('deleteRow', index);
-                        });
+
                 });
             }
         },
+        // 筛选
         filter: function () {
             this.filterbar = !this.filterbar;
             if (this.filterbar) {
@@ -170,6 +222,7 @@
                 });
             }
         },
+        // 导出
         export: function (e) {
             var type = $(e).attr('export');
             var rows = null;
@@ -183,6 +236,7 @@
                 rows: rows
             });
         },
+        // 打印
         print: function (e) {
             var type = $(e).attr('print');
             var rows = null;

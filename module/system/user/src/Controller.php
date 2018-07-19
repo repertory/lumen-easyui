@@ -23,6 +23,11 @@ class Controller extends BaseController
         return view('module::create');
     }
 
+    public function postCreate()
+    {
+        abort(403, '没有权限');
+    }
+
     public function getEdit(Request $request)
     {
         $data = Model\User::findOrFail($request->input('id', 0));
