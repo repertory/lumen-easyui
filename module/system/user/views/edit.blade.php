@@ -10,6 +10,10 @@
                     data-options="{validType: {email: true, remote: ['{{ module_url('wangdong/easyui/exist', ['type' => 'email','reverse' => true, 'except' => $data->email]) }}', 'email']}}"
                     style="width:100%">
             </dd>
+            <dd>
+                <input class="easyui-passwordbox" name="password" label="密码" labelWidth="48" data-options="{validType: {length: [6, 32]}}"
+                    style="width:100%" prompt="留空时不修改密码">
+            </dd>
         </dl>
     </form>
     <div class="buttons">
@@ -67,6 +71,7 @@
                 },
                 success: function (data) {
                     $.messager.success('操作提示', '修改成功');
+
                     // 收起当前行
                     self.parent.datagrid.datagrid('collapseRow', index);
                     // 更新当前行的数据

@@ -136,6 +136,7 @@
                             success: function () {
                                 $.messager.success('操作提示', '添加成功');
                                 self.dialog.dialog('close');
+                                self.datagrid.datagrid('reload');
                             },
                             error: '操作提示'
                         });
@@ -158,15 +159,15 @@
                 $.messager.confirm('操作确认', '确定要删除当前选中的用户吗?', function (r) {
                     if (!r) return false;
 
+                    var ids = rows.map(function(row) {
+                        return row.id;
+                    });
                     // ajax请求
-                    $.ajax({
+                    $.post({
                         url: '{{ module_url('system/user/delete') }}',
-                        type: 'DELETE',
-                        contentType:"application/json",
-                        data: {ids: rows.map(function(row) {
-                            return row.id;
-                        })},
-                        success: function(data){
+                        type: 'POST',
+                        data: {ids: ids},
+                        success: function(){
                             rows
                                 .map(function(row) {
                                     return self.datagrid.datagrid('getRowIndex', row);
@@ -194,16 +195,16 @@
                 this.datagrid.datagrid('enableFilter', [{
                     field: 'name',
                     type: 'textbox',
-                    op: ['equal', 'notequal', 'contains', 'notcontains']
+                    op: ['equal', 'contains', 'notcontains', 'beginwith', 'endwith']
                 }, {
                     field: 'email',
                     type: 'textbox',
                     options: {validType: {email: true}},
-                    op: ['equal', 'notequal', 'contains', 'notcontains']
+                    op: ['equal', 'contains', 'notcontains', 'beginwith', 'endwith']
                 }, {
                     field: 'created_at',
                     type: 'datetimebox',
-                    op: ['equal', 'notequal', 'less', 'greater']
+                    op: ['equal', 'notequal', 'less', 'lessorequal', 'greater', 'greaterorequal']
                 }, {
                     field: 'updated_at',
                     type: 'datetimebox',
