@@ -1,4 +1,4 @@
-<div class="easyui-panel" title="系统管理/用户管理" fit="true" border="false" iconCls="fa fa-user">
+<div class="easyui-panel" title="系统管理/角色管理" fit="true" border="false" iconCls="fa fa-group">
 
     <div class="toolbar">
         <a class="easyui-linkbutton" iconCls="fa fa-plus" plain="true" method="create">添加</a>
@@ -6,6 +6,8 @@
         <a class="easyui-linkbutton" iconCls="fa fa-filter" plain="true" method="filter">筛选</a>
         <a class="easyui-splitbutton" iconCls="fa fa-file-excel-o" plain="true" splitbutton="export">导出</a>
         <a class="easyui-splitbutton" iconCls="fa fa-print" plain="true" splitbutton="print" hide-xs>打印</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-folder-o" plain="true" method="collapse" hide-xs>收起</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-folder-open-o" plain="true" method="expand" hide-xs>展开</a>
     </div>
 
     <div class="splitbutton" style="display: none;">
@@ -20,7 +22,7 @@
         </div>
     </div>
 
-    <div class="datagrid" fit="true" border="false" url="{{ module_url('system/user') }}"></div>
+    <div class="treegrid" fit="true" border="false" url="{{ module_url('system/role') }}"></div>
 
     <div class="dialog"></div>
 
@@ -28,7 +30,7 @@
 
 <script type="text/javascript">
     $(':host').options({
-        datagrid: $('.datagrid', ':host'),
+        treegrid: $('.treegrid', ':host'),
         toolbar: $('.toolbar', ':host'),
         dialog: $('.dialog', ':host'),
         filterbar: false,
@@ -36,7 +38,7 @@
         init: function () {
             this.event();
             this.initSplitbutton();
-            this.initDatagrid();
+            this.initTreegrid();
         },
         // 事件监听
         event: function () {
@@ -55,68 +57,49 @@
             });
         },
         // 初始化数据列表
-        initDatagrid: function() {
+        initTreegrid: function() {
             var self = this;
-            this.datagrid.datagrid({
-                // 默认参数
+            this.treegrid.treegrid({
                 toolbar: self.toolbar,
                 frozenColumns: [[
                     {field:'ck',checkbox:true},
                 ]],
                 columns: [[
-                    {field:'name',title:'姓名',width:120,sortable:true,export:true},
-                    {field:'email',title:'邮箱',width:300,sortable:true,export:true},
+                    {field:'role',title:'标识',width:64,sortable:true,export:true},
+                    {field:'name',title:'角色',width:280,sortable:true,export:true},
                     {field:'created_at',title:'创建时间',width:150,sortable:true,export:true},
                     {field:'updated_at',title:'修改时间',width:150,sortable:true,export:true},
                 ]],
+                idField: 'id',
+                treeField: 'name',
+                animate: true,
+                lines: true,
+                onBeforeLoad: function(row, param){
+                    if (!row) {
+                        param.id = 0;
+                    }
+                },
                 rownumbers: true,
                 singleSelect: false,
                 ctrlSelect: true,
                 striped: true,
-                pagination: true,
-                pageList: [10,20,30,50,100,200,500,1000],
-                multiSort: true,
-                loadFilter: function (data) {
-                    return {rows: data.data, total: data.total};
-                },
-                // 筛选参数
-                clientPaging: false,
-                remoteFilter: true,
-                // detailview参数
-                view: $.easyui.extension.datagrid.detailview,
-                detailFormatter: function (index, row) {
-                    return '<div class="form"></div>';
-                },
-                onExpandRow: function (index, row) {
-                    if(!row.id) return;
-
-                    var form = $(this).datagrid('getRowDetail', index).find('div.form');
-                    form.panel({
-                        border: false,
-                        cache: true,
-                        href: '{{ module_url('system/user/edit') }}?id=' + row.id,
-                        onLoad: function () {
-                            self.datagrid.datagrid('fixDetailRowHeight', index);
-                            self.datagrid.datagrid('selectRow', index);
-                            {{-- self.datagrid.datagrid('getRowDetail',index).find('form').form('load',row); --}}
-                        }
-                    });
-                    self.datagrid.datagrid('fixDetailRowHeight', index);
-                }
+                multiSort: true
             });
         },
+
         // 添加
-        create: function () {
+        create: function (e) {
+            console.log('create', e);
             var self = this;
 
             this.dialog.dialog({
-                title: '添加用户',
+                title: '添加角色',
                 iconCls: 'fa fa-plus',
                 modal: true,
                 border: 'thin',
                 width: '360px',
                 constrain: true,
-                href: '{{ module_url('system/user/create') }}',
+                href: '{{ module_url('system/role/create') }}',
                 onLoad: function() {
                     self.dialog.dialog('center');
                 },
@@ -129,14 +112,14 @@
 
                         form.form('ajax', {
                             progressbar: '数据发送中...',
-                            url: '{{ module_url('system/user/create') }}',
+                            url: '{{ module_url('system/role/create') }}',
                             onSubmit: function () {
                                 return $(this).form('validate');
                             },
                             success: function () {
                                 $.messager.success('操作提示', '添加成功');
                                 self.dialog.dialog('close');
-                                self.datagrid.datagrid('reload');
+                                self.treegrid.treegrid('reload');
                             },
                             error: '操作提示'
                         });
@@ -153,10 +136,10 @@
         },
         // 删除
         destroy: function () {
-            var rows = this.datagrid.datagrid('getSelections');
+            var rows = this.treegrid.treegrid('getSelections');
             if (rows.length) {
                 var self = this;
-                $.messager.confirm('操作确认', '确定要删除当前选中的用户吗?', function (r) {
+                $.messager.confirm('操作确认', '确定要删除当前选中的角色吗?', function (r) {
                     if (!r) return false;
 
                     var ids = rows.map(function(row) {
@@ -164,19 +147,11 @@
                     });
                     // ajax请求
                     $.post({
-                        url: '{{ module_url('system/user/delete') }}',
+                        url: '{{ module_url('system/role/delete') }}',
                         type: 'POST',
                         data: {ids: ids},
                         success: function(){
-                            rows
-                                .map(function(row) {
-                                    return self.datagrid.datagrid('getRowIndex', row);
-                                })
-                                .sort()
-                                .reverse()
-                                .map(function(index) {
-                                    return self.datagrid.datagrid('deleteRow', index);
-                                });
+                            self.treegrid.treegrid('reload');
                             $.messager.error('操作提示', '删除成功');
                         },
                         error: function(xhr) {
@@ -192,14 +167,13 @@
         filter: function () {
             this.filterbar = !this.filterbar;
             if (this.filterbar) {
-                this.datagrid.datagrid('enableFilter', [{
-                    field: 'name',
+                this.treegrid.treegrid('enableFilter', [{
+                    field: 'role',
                     type: 'textbox',
                     op: ['equal', 'contains', 'notcontains', 'beginwith', 'endwith']
                 }, {
-                    field: 'email',
+                    field: 'name',
                     type: 'textbox',
-                    options: {validType: {email: true}},
                     op: ['equal', 'contains', 'notcontains', 'beginwith', 'endwith']
                 }, {
                     field: 'created_at',
@@ -213,14 +187,9 @@
             } else {
                 // 与datagrid.detailview插件冲突，必须重新赋值view
                 try {
-                    this.datagrid.datagrid('disableFilter');
+                    this.treegrid.treegrid('disableFilter');
                 } catch (e) {
                 }
-                // 关闭筛选时清空条件
-                this.datagrid.datagrid({
-                    filterRules: [],
-                    view: $.easyui.extension.datagrid.detailview
-                });
             }
         },
         // 导出
@@ -229,25 +198,30 @@
             var rows = null;
             switch(type) {
                 case 'selected':
-                    rows = this.datagrid.datagrid('getSelections');
+                    rows = this.treegrid.treegrid('getSelections');
                     break;
+                default:
+                    rows = this.treegrid.treegrid('getData') || [];
             }
-            this.datagrid.datagrid('toExcel', {
-                filename: '用户管理-' + moment().format('LLL') + '.xls',
+            this.treegrid.treegrid('toExcel', {
+                filename: '角色管理-' + moment().format('LLL') + '.xls',
                 rows: rows
             });
         },
         // 打印
         print: function (e) {
+            console.log(this.treegrid.treegrid('getData'));
             var type = $(e).attr('print');
             var rows = null;
             switch(type) {
                 case 'selected':
-                    rows = this.datagrid.datagrid('getSelections');
+                    rows = this.treegrid.treegrid('getSelections');
                     break;
+                default:
+                    rows = this.treegrid.treegrid('getData') || [];
             }
-            this.datagrid.datagrid('print', {
-                title: '用户管理',
+            this.treegrid.treegrid('print', {
+                title: '角色管理',
                 rows: rows
             });
         }
