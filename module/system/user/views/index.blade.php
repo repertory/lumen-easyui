@@ -208,7 +208,7 @@
                 }, {
                     field: 'updated_at',
                     type: 'datetimebox',
-                    op: ['equal', 'notequal', 'less', 'greater']
+                    op: ['equal', 'notequal', 'less', 'lessorequal', 'greater', 'greaterorequal']
                 }]);
             } else {
                 // 与datagrid.detailview插件冲突，必须重新赋值view
