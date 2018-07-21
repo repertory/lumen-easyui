@@ -118,7 +118,7 @@ class Controller extends BaseController
         $data->name = $request->input('name');
         $data->save();
 
-        return data;
+        return $data;
     }
 
     public function postDelete(Request $request)

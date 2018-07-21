@@ -104,7 +104,7 @@ class Controller extends BaseController
         }
         $data->save();
 
-        return data;
+        return $data;
     }
 
     public function postDelete(Request $request)
