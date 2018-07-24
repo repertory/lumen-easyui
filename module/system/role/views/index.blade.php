@@ -242,6 +242,7 @@
                 rows: rows
             });
         },
+        // 收缩
         collapse: function() {
             var rows = this.treegrid.treegrid('getSelections');
             if(rows.length) {
@@ -252,6 +253,7 @@
                 this.treegrid.treegrid('collapseAll');
             }
         },
+        // 展开
         expand: function() {
             var rows = this.treegrid.treegrid('getSelections');
             if(rows.length) {
