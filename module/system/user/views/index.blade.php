@@ -86,7 +86,7 @@
                 remoteFilter: true
             });
         },
-        // 表单处理
+        // 表单操作
         form: function(e) {
             var self = this;
             var url = $(e).attr('url');
@@ -102,6 +102,8 @@
                 // 判断是否需要选中数据
                 if($(e).attr('selected')) {
                     return;
+                } else {
+                    url = url.replace(escape(':id'), 0);
                 }
             }
 
@@ -166,15 +168,7 @@
                         type: 'POST',
                         data: {ids: ids},
                         success: function() {
-                            rows
-                                .map(function(row) {
-                                    return self.datagrid.datagrid('getRowIndex', row);
-                                })
-                                .sort()
-                                .reverse()
-                                .map(function(index) {
-                                    return self.datagrid.datagrid('deleteRow', index);
-                                });
+                            self.datagrid.datagrid('reload');
                             $.messager.error('操作提示', '删除成功');
                         },
                         error: function(xhr) {

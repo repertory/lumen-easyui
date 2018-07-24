@@ -1,9 +1,10 @@
 <div class="easyui-panel" title="系统管理/角色管理" fit="true" border="false" iconCls="fa fa-group">
 
     <div class="toolbar">
-        <a class="easyui-linkbutton" iconCls="fa fa-plus" plain="true" method="create">添加</a>
-        <a class="easyui-linkbutton" iconCls="fa fa-edit" plain="true" method="edit">编辑</a>
-        <a class="easyui-linkbutton" iconCls="fa fa-trash" plain="true" method="destroy">删除</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-plus" plain="true" method="form" url="{{ module_url('system/role/create', ['parent' => ':id']) }}">添加</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-edit" plain="true" method="form" url="{{ module_url('system/role/edit', ['id' => ':id']) }}"
+            selected="true">编辑</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-trash" plain="true" method="destroy" url="{{ module_url('system/role/delete') }}">删除</a>
         <a class="easyui-linkbutton" iconCls="fa fa-filter" plain="true" method="filter">筛选</a>
         <a class="easyui-splitbutton" iconCls="fa fa-file-excel-o" plain="true" splitbutton="export">导出</a>
         <a class="easyui-splitbutton" iconCls="fa fa-print" plain="true" splitbutton="print" hide-xs>打印</a>
@@ -87,20 +88,35 @@
                 multiSort: true
             });
         },
-
-        // 添加
-        create: function (e) {
-            console.log('create', e);
+        // 表单操作
+        form: function (e) {
             var self = this;
+            var url = $(e).attr('url');
+            var title = $(e).attr('title') || $(e).text();
+            var iconCls = $(e).attr('iconCls');
+            var width = $(e).attr('width');
+
+            var row = this.treegrid.treegrid('getSelected');
+
+            if(row) {
+                url = url.replace(escape(':id'), row.id);
+            } else {
+                // 判断是否需要选中数据
+                if($(e).attr('selected')) {
+                    return;
+                } else {
+                    url = url.replace(escape(':id'), 0);
+                }
+            }
 
             this.dialog.dialog({
-                title: '添加角色',
-                iconCls: 'fa fa-plus',
+                title: title,
+                iconCls: iconCls,
                 modal: true,
                 border: 'thin',
-                width: '360px',
+                width: width || '360px',
                 constrain: true,
-                href: '{{ module_url('system/role/create') }}',
+                href: url,
                 onLoad: function() {
                     self.dialog.dialog('center');
                 },
@@ -113,12 +129,12 @@
 
                         form.form('ajax', {
                             progressbar: '数据发送中...',
-                            url: '{{ module_url('system/role/create') }}',
+                            url: url,
                             onSubmit: function () {
                                 return $(this).form('validate');
                             },
                             success: function () {
-                                $.messager.success('操作提示', '添加成功');
+                                $.messager.success('操作提示', '操作成功');
                                 self.dialog.dialog('close');
                                 self.treegrid.treegrid('reload');
                             },
@@ -136,11 +152,12 @@
             });
         },
         // 删除
-        destroy: function () {
+        destroy: function (e) {
             var rows = this.treegrid.treegrid('getSelections');
             if (rows.length) {
                 var self = this;
-                $.messager.confirm('操作确认', '确定要删除当前选中的角色吗?', function (r) {
+                var url = $(e).attr('url');
+                $.messager.confirm('操作确认', '确定要删除当前选中的' + rows.length +'条数据吗?', function (r) {
                     if (!r) return false;
 
                     var ids = rows.map(function(row) {
@@ -148,7 +165,7 @@
                     });
                     // ajax请求
                     $.post({
-                        url: '{{ module_url('system/role/delete') }}',
+                        url: url,
                         type: 'POST',
                         data: {ids: ids},
                         success: function(){
@@ -211,7 +228,6 @@
         },
         // 打印
         print: function (e) {
-            console.log(this.treegrid.treegrid('getData'));
             var type = $(e).attr('print');
             var rows = null;
             switch(type) {
