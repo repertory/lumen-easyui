@@ -241,6 +241,26 @@
                 title: '角色管理',
                 rows: rows
             });
+        },
+        collapse: function() {
+            var rows = this.treegrid.treegrid('getSelections');
+            if(rows.length) {
+                for(var i = 0; i < rows.length; i++) {
+                    this.treegrid.treegrid('collapse', rows[i].id);
+                }
+            } else {
+                this.treegrid.treegrid('collapseAll');
+            }
+        },
+        expand: function() {
+            var rows = this.treegrid.treegrid('getSelections');
+            if(rows.length) {
+                for(var i = 0; i < rows.length; i++) {
+                    this.treegrid.treegrid('expand', rows[i].id);
+                }
+            } else {
+                this.treegrid.treegrid('expandAll');
+            }
         }
     }).init();
 
