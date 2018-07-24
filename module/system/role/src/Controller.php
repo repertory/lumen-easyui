@@ -127,6 +127,77 @@ class Controller extends BaseController
         Model\Role::whereIn('id', $request->input('ids'))->delete();
     }
 
+    public function getAcl(Request $request)
+    {
+        $data = Model\Acl::where('role_id', $request->input('id', 0))
+            ->get()
+            ->each(function ($row) {
+                $row->key = implode('-', [$row->group, $row->module, $row->alias]);
+            })
+            ->unique('key')
+            ->values();
+        return view('module::acl', ['data' => $data]);
+    }
+
+    public function postModule()
+    {
+        $children = Model\Module::where('menu', true)
+            ->get()
+            ->map(function ($row) {
+                $acl = collect($row->acl)
+                    ->filter(function ($status) {
+                        return $status;
+                    })
+                    ->map(function ($status, $alias) {
+                        return $alias;
+                    })
+                    ->values();
+
+                return [
+                    'parent' => $row->group,
+                    'name' => $row->name,
+                    'group' => $row->module_group,
+                    'module' => $row->module_module,
+                    'alias' => '*',
+                    'key' => implode('-', [$row->module_group, $row->module_module, '*']),
+                    'children' => $acl->map(function ($alias) use ($row) {
+                        return [
+                            'parent' => $row->name,
+                            'name' => $alias,
+                            'group' => $row->module_group,
+                            'module' => $row->module_module,
+                            'alias' => $alias,
+                            'key' => implode('-', [$row->module_group, $row->module_module, $alias]),
+                        ];
+                    }),
+                ];
+            })
+            ->groupBy('group')
+            ->map(function ($children, $group) {
+                $name = array_get($children, '0.parent');
+                return [
+                    'parent' => null,
+                    'name' => $name,
+                    'group' => $group,
+                    'module' => '*',
+                    'alias' => '*',
+                    'key' => implode('-', [$group, '*', '*']),
+                    'children' => $children,
+                ];
+            })
+            ->values();
+
+        return [[
+            'parent' => null,
+            'name' => '所有权限',
+            'group' => '*',
+            'module' => '*',
+            'alias' => '*',
+            'key' => implode('-', ['*', '*', '*']),
+            'children' => $children,
+        ]];
+    }
+
     public function postCombotree()
     {
         return [[

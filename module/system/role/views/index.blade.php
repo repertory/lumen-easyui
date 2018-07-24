@@ -5,6 +5,8 @@
         <a class="easyui-linkbutton" iconCls="fa fa-edit" plain="true" method="form" url="{{ module_url('system/role/edit', ['id' => ':id']) }}"
             selected="true">编辑</a>
         <a class="easyui-linkbutton" iconCls="fa fa-trash" plain="true" method="destroy" url="{{ module_url('system/role/delete') }}">删除</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-universal-access" plain="true" method="form" url="{{ module_url('system/role/acl', ['id' => ':id']) }}"
+            selected="true" width="640" hide-sm>权限</a>
         <a class="easyui-linkbutton" iconCls="fa fa-filter" plain="true" method="filter">筛选</a>
         <a class="easyui-splitbutton" iconCls="fa fa-file-excel-o" plain="true" splitbutton="export">导出</a>
         <a class="easyui-splitbutton" iconCls="fa fa-print" plain="true" splitbutton="print" hide-xs>打印</a>
@@ -67,8 +69,8 @@
                     {field:'ck',checkbox:true},
                 ]],
                 columns: [[
-                    {field:'role',title:'标识',width:64,sortable:true,export:true},
                     {field:'name',title:'角色',width:280,sortable:true,export:true},
+                    {field:'role',title:'标识',width:64,sortable:true,export:true},
                     {field:'created_at',title:'创建时间',width:150,sortable:true,export:true},
                     {field:'updated_at',title:'修改时间',width:150,sortable:true,export:true},
                 ]],

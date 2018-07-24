@@ -46,19 +46,24 @@
                 "postCreate": "添加",
                 "getEdit": "编辑",
                 "postEdit": "编辑",
-                "postDelete": "删除"
+                "postDelete": "删除",
+                "getAcl": "权限",
+                "postAcl": "权限",
+                "postModule": "权限"
             },
             "auth": {
                 "查看": true,
                 "添加": true,
                 "编辑": true,
-                "删除": true
+                "删除": true,
+                "权限": true
             },
             "acl": {
                 "查看": true,
                 "添加": true,
                 "编辑": true,
-                "删除": true
+                "删除": true,
+                "权限": true
             }
         }
     }
