@@ -1,8 +1,10 @@
 <div class="easyui-panel" title="系统管理/用户管理" fit="true" border="false" iconCls="fa fa-user">
 
     <div class="toolbar">
-        <a class="easyui-linkbutton" iconCls="fa fa-plus" plain="true" method="create">添加</a>
-        <a class="easyui-linkbutton" iconCls="fa fa-minus" plain="true" method="destroy">删除</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-plus" plain="true" method="form" url="{{ module_url('system/user/create') }}">添加</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-edit" plain="true" method="form" url="{{ module_url('system/user/edit', ['id' => ':id']) }}"
+            selected="true">编辑</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-trash" plain="true" method="destroy" url="{{ module_url('system/user/delete') }}">删除</a>
         <a class="easyui-linkbutton" iconCls="fa fa-filter" plain="true" method="filter">筛选</a>
         <a class="easyui-splitbutton" iconCls="fa fa-file-excel-o" plain="true" splitbutton="export">导出</a>
         <a class="easyui-splitbutton" iconCls="fa fa-print" plain="true" splitbutton="print" hide-xs>打印</a>
@@ -81,42 +83,36 @@
                 },
                 // 筛选参数
                 clientPaging: false,
-                remoteFilter: true,
-                // detailview参数
-                view: $.easyui.extension.datagrid.detailview,
-                detailFormatter: function (index, row) {
-                    return '<div class="form"></div>';
-                },
-                onExpandRow: function (index, row) {
-                    if(!row.id) return;
-
-                    var form = $(this).datagrid('getRowDetail', index).find('div.form');
-                    form.panel({
-                        border: false,
-                        cache: true,
-                        href: '{{ module_url('system/user/edit') }}?id=' + row.id,
-                        onLoad: function () {
-                            self.datagrid.datagrid('fixDetailRowHeight', index);
-                            self.datagrid.datagrid('selectRow', index);
-                            {{-- self.datagrid.datagrid('getRowDetail',index).find('form').form('load',row); --}}
-                        }
-                    });
-                    self.datagrid.datagrid('fixDetailRowHeight', index);
-                }
+                remoteFilter: true
             });
         },
-        // 添加
-        create: function () {
+        // 表单处理
+        form: function(e) {
             var self = this;
+            var url = $(e).attr('url');
+            var title = $(e).attr('title') || $(e).text();
+            var iconCls = $(e).attr('iconCls');
+            var width = $(e).attr('width');
+
+            var row = this.datagrid.datagrid('getSelected');
+
+            if(row) {
+                url = url.replace(escape(':id'), row.id);
+            } else {
+                // 判断是否需要选中数据
+                if($(e).attr('selected')) {
+                    return;
+                }
+            }
 
             this.dialog.dialog({
-                title: '添加用户',
-                iconCls: 'fa fa-plus',
+                title: title,
+                iconCls: iconCls,
                 modal: true,
                 border: 'thin',
-                width: '360px',
+                width: width || '360px',
                 constrain: true,
-                href: '{{ module_url('system/user/create') }}',
+                href: url,
                 onLoad: function() {
                     self.dialog.dialog('center');
                 },
@@ -129,12 +125,12 @@
 
                         form.form('ajax', {
                             progressbar: '数据发送中...',
-                            url: '{{ module_url('system/user/create') }}',
+                            url: url,
                             onSubmit: function () {
                                 return $(this).form('validate');
                             },
                             success: function () {
-                                $.messager.success('操作提示', '添加成功');
+                                $.messager.success('操作提示', '操作成功');
                                 self.dialog.dialog('close');
                                 self.datagrid.datagrid('reload');
                             },
@@ -152,11 +148,13 @@
             });
         },
         // 删除
-        destroy: function () {
+        destroy: function (e) {
             var rows = this.datagrid.datagrid('getSelections');
             if (rows.length) {
                 var self = this;
-                $.messager.confirm('操作确认', '确定要删除当前选中的用户吗?', function (r) {
+                var url = $(e).attr('url');
+
+                $.messager.confirm('操作确认', '确定要删除当前选中的' + rows.length +'条数据吗?', function (r) {
                     if (!r) return false;
 
                     var ids = rows.map(function(row) {
@@ -164,10 +162,10 @@
                     });
                     // ajax请求
                     $.post({
-                        url: '{{ module_url('system/user/delete') }}',
+                        url: url,
                         type: 'POST',
                         data: {ids: ids},
-                        success: function(){
+                        success: function() {
                             rows
                                 .map(function(row) {
                                     return self.datagrid.datagrid('getRowIndex', row);
@@ -183,8 +181,6 @@
                             $.messager.error('操作提示', xhr.responseJSON ? xhr.responseJSON.message : '删除失败');
                         }
                     });
-
-
                 });
             }
         },
@@ -217,10 +213,7 @@
                 } catch (e) {
                 }
                 // 关闭筛选时清空条件
-                this.datagrid.datagrid({
-                    filterRules: [],
-                    view: $.easyui.extension.datagrid.detailview
-                });
+                this.datagrid.datagrid({filterRules: []});
             }
         },
         // 导出

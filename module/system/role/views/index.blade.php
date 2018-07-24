@@ -2,7 +2,8 @@
 
     <div class="toolbar">
         <a class="easyui-linkbutton" iconCls="fa fa-plus" plain="true" method="create">添加</a>
-        <a class="easyui-linkbutton" iconCls="fa fa-minus" plain="true" method="destroy">删除</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-edit" plain="true" method="edit">编辑</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-trash" plain="true" method="destroy">删除</a>
         <a class="easyui-linkbutton" iconCls="fa fa-filter" plain="true" method="filter">筛选</a>
         <a class="easyui-splitbutton" iconCls="fa fa-file-excel-o" plain="true" splitbutton="export">导出</a>
         <a class="easyui-splitbutton" iconCls="fa fa-print" plain="true" splitbutton="print" hide-xs>打印</a>
