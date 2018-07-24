@@ -38,13 +38,27 @@
                 "acl": true
             },
             "alias": {
-                "getIndex": "查看"
+                "getIndex": "查看",
+                "postIndex": "查看",
+                "postCombotree": "查看",
+                "postExist": "查看",
+                "getCreate": "添加",
+                "postCreate": "添加",
+                "getEdit": "编辑",
+                "postEdit": "编辑",
+                "postDelete": "删除"
             },
             "auth": {
-                "查看": true
+                "查看": true,
+                "添加": true,
+                "编辑": true,
+                "删除": true
             },
             "acl": {
-                "查看": true
+                "查看": true,
+                "添加": true,
+                "编辑": true,
+                "删除": true
             }
         }
     }

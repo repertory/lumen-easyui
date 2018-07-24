@@ -89,9 +89,9 @@ class Controller extends BaseController
         });
     }
 
-    public function getCreate()
+    public function getCreate(Request $request)
     {
-        return view('module::create');
+        return view('module::create', ['data' => collect($request->all())]);
     }
 
     public function postCreate(Request $request)
@@ -114,6 +114,7 @@ class Controller extends BaseController
     public function postEdit(Request $request)
     {
         $data = Model\Role::findOrFail($request->input('id', 0));
+        $data->parent = $request->input('parent', 0);
         $data->role = $request->input('role');
         $data->name = $request->input('name');
         $data->save();
@@ -125,4 +126,36 @@ class Controller extends BaseController
     {
         Model\Role::whereIn('id', $request->input('ids'))->delete();
     }
+
+    public function postCombotree()
+    {
+        return [[
+            'id' => 0,
+            'parent' => 0,
+            'name' => '一级角色',
+            'children' => Model\Role::where('parent', 0)->get()->each(function ($row) {
+                $row->children;
+            })
+        ]];
+    }
+
+    public function postExist(Request $request)
+    {
+        $reverse = $request->input('reverse', false);
+        $exist = false;
+        $except = $request->input('except', null);
+
+        switch ($request->input('type', 'role')) {
+            case 'role':
+                $role = $request->input('role', '');
+                if ($except == $role) {
+                    $exist = false;
+                } else {
+                    $exist = Model\Role::where('role', $role)->count();
+                }
+                break;
+        }
+        return var_export($exist && !$reverse || !$exist && $reverse, true);
+    }
+
 }

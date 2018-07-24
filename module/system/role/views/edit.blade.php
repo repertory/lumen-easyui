@@ -7,7 +7,7 @@
                     data-options="{formatter: function(node){return node.name;},textField:'name'}" style="width:100%">
             </dd>
             <dd>
-                <input class="easyui-textbox" name="role" label="标识" labelWidth="48" required="true" data-options="{validType: {length: [2, 10], remote: ['{{ module_url('system/role/exist', ['type' => 'role','reverse' => true]) }}', 'role']}}"
+                <input class="easyui-textbox" name="role" label="标识" labelWidth="48" required="true" data-options="{validType: {length: [2, 10], remote: ['{{ module_url('system/role/exist', ['type' => 'role', 'reverse' => true, 'except' => $data->role]) }}', 'role']}}"
                     style="width:100%">
             </dd>
             <dd>

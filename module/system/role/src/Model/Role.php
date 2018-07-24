@@ -29,7 +29,7 @@ class Role extends Model
      */
     public function child()
     {
-        return $this->hasMany('Module\Wangdong\Easyui\Model\Role', 'parent', 'id');
+        return $this->hasMany('Module\System\Role\Model\Role', 'parent', 'id');
     }
 
     /**
