@@ -12,6 +12,7 @@
         <a class="easyui-splitbutton" iconCls="fa fa-print" plain="true" splitbutton="print" hide-xs>打印</a>
         <a class="easyui-linkbutton" iconCls="fa fa-folder-o" plain="true" method="collapse" hide-xs>收起</a>
         <a class="easyui-linkbutton" iconCls="fa fa-folder-open-o" plain="true" method="expand" hide-xs>展开</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-user" plain="true" method="open" hide-xs url="{{ module_url('system/user', ['role' => ':id']) }}">用户管理</a>
     </div>
 
     <div class="splitbutton" style="display: none;">
@@ -71,6 +72,7 @@
                 columns: [[
                     {field:'name',title:'角色',width:280,sortable:true,export:true},
                     {field:'role',title:'标识',width:64,sortable:true,export:true},
+                    {field:'users',title:'用户数',width:64,sortable:true,export:true},
                     {field:'created_at',title:'创建时间',width:150,sortable:true,export:true},
                     {field:'updated_at',title:'修改时间',width:150,sortable:true,export:true},
                 ]],
@@ -343,6 +345,40 @@
                 }
             } else {
                 this.treegrid.treegrid('expandAll');
+            }
+        },
+        open: function(e) {
+            var row = this.treegrid.treegrid('getSelected');
+            if(!row) return;
+
+            var node = {
+                href: $(e).attr('url').replace(escape(':id'), row.id),
+                title: ($(e).attr('title') || $(e).text()) + ' - ' + row.name,
+                iconCls: $(e).attr('iconCls'),
+                iframe: false,
+            };
+
+            var $tabs = $('body').layout('panel', 'center').find('.easyui-tabs:first');
+            var exists = $tabs.tabs('tabs')
+                .map(function (tab, index) {
+                    return {
+                        tab: tab,
+                        index: index
+                    };
+                })
+                .filter(function (item) {
+                    var panel = item.tab.panel('options');
+                    return !!panel.iframe == !!node.iframe &&
+                        panel.href == node.href &&
+                        panel.title == node.title &&
+                        panel.iconCls == node.iconCls;
+                });
+
+            // 选中已存在标签，否则添加新标签
+            if (exists.length) {
+                $tabs.tabs('select', exists.pop().index);
+            } else {
+                $tabs.tabs('add', $.extend({closable: true}, node));
             }
         }
     }).init();

@@ -11,11 +11,16 @@ class Controller extends BaseController
 
     public function getIndex(Request $request)
     {
-        return view('module::index');
+        return view('module::index', ['request' => collect($request->all())]);
     }
 
     public function postIndex(Request $request, Model\User $user)
     {
+        // 默认筛选条件
+        if ($request->has('role')) {
+            $user = Model\Role::where('id', $request->input('role'))->first()->users();
+        }
+
         // 筛选
         if ($request->has('filterRules')) {
             $filterRules = collect(json_decode($request->input('filterRules'), true));

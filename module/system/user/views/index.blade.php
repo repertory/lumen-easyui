@@ -37,6 +37,7 @@
         datagrid: $('.datagrid', ':host'),
         toolbar: $('.toolbar', ':host'),
         dialog: $('.dialog', ':host'),
+        request: {!! $request->toJson() !!},
         filterbar: false,
         // 初始化
         init: function () {
@@ -90,6 +91,7 @@
                 loadFilter: function (data) {
                     return {rows: data.data, total: data.total};
                 },
+                queryParams: self.request,
                 // 筛选参数
                 clientPaging: false,
                 remoteFilter: true

@@ -84,6 +84,7 @@ class Controller extends BaseController
             ->unique();
 
         return $rows->map(function ($row) use ($children) {
+            $row->users = $row->users()->count();
             $row->state = $children->contains($row->id) ? 'closed' : 'open';
             return $row;
         });
