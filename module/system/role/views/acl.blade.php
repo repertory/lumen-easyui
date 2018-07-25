@@ -57,9 +57,6 @@
         // 展开
         expand: function() {
             this.treegrid.treegrid('expandAll');
-        },
-        save: function() {
-            console.log(this.treegrid.treegrid('getCheckedNodes'));
         }
     }).init();
 

@@ -139,6 +139,17 @@ class Controller extends BaseController
         return view('module::acl', ['data' => $data]);
     }
 
+    public function postAcl(Request $request)
+    {
+        $roleId = $request->input('id', 0);
+        $acl = collect(json_decode($request->input('acl', '[]'), true));
+        Model\Acl::where('role_id', $roleId)->delete();
+        $acl->map(function ($row) use ($roleId) {
+            array_set($row, 'role_id', $roleId);
+            return Model\Acl::create($row);
+        });
+    }
+
     public function postModule()
     {
         $children = Model\Module::where('menu', true)

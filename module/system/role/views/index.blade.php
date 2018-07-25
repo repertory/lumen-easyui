@@ -5,8 +5,8 @@
         <a class="easyui-linkbutton" iconCls="fa fa-edit" plain="true" method="form" url="{{ module_url('system/role/edit', ['id' => ':id']) }}"
             selected="true">编辑</a>
         <a class="easyui-linkbutton" iconCls="fa fa-trash" plain="true" method="destroy" url="{{ module_url('system/role/delete') }}">删除</a>
-        <a class="easyui-linkbutton" iconCls="fa fa-universal-access" plain="true" method="form" url="{{ module_url('system/role/acl', ['id' => ':id']) }}"
-            selected="true" width="640" hide-sm>权限</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-universal-access" plain="true" method="acl" url="{{ module_url('system/role/acl', ['id' => ':id']) }}"
+            hide-sm>权限</a>
         <a class="easyui-linkbutton" iconCls="fa fa-filter" plain="true" method="filter">筛选</a>
         <a class="easyui-splitbutton" iconCls="fa fa-file-excel-o" plain="true" splitbutton="export">导出</a>
         <a class="easyui-splitbutton" iconCls="fa fa-print" plain="true" splitbutton="print" hide-xs>打印</a>
@@ -116,7 +116,7 @@
                 iconCls: iconCls,
                 modal: true,
                 border: 'thin',
-                width: width || '360px',
+                width: width || 360,
                 constrain: true,
                 href: url,
                 onLoad: function() {
@@ -178,10 +178,89 @@
                             $.messager.error('操作提示', xhr.responseJSON ? xhr.responseJSON.message : '删除失败');
                         }
                     });
-
-
                 });
             }
+        },
+        // 权限
+        acl: function(e) {
+            var row = this.treegrid.treegrid('getSelected');
+            if(!row) return;
+
+            var self = this;
+            var url = $(e).attr('url').replace(escape(':id'), row.id);
+            var title = $(e).attr('title') || $(e).text();
+            var iconCls = $(e).attr('iconCls');
+
+            this.dialog.dialog({
+                title: title,
+                iconCls: iconCls,
+                modal: true,
+                border: 'thin',
+                width: 640,
+                constrain: true,
+                href: url,
+                onLoad: function() {
+                    self.dialog.dialog('center');
+                },
+                buttons:[{
+                    text: '保存',
+                    iconCls: 'fa fa-save',
+                    handler: function() {
+                        var child = self.dialog.find('[module]');
+                        if(!child) return;
+
+                        var rows = child.options().treegrid.treegrid('getCheckedNodes');
+                        var result = rows
+                            .filter(function(row) {
+                                if(row.group == '*' || row.module == '*' || row.alias == '*'){
+                                    return true;
+                                }
+                                return !rows.some(function(item) {
+                                    return $.inArray(item.key, [
+                                        [row.group, '*', '*'].join('-'),
+                                        [row.group, row.module, '*'].join('-')
+                                    ]) > -1;
+                                });
+                            })
+                            .filter(function(row) {
+                                if(row.group == '*' && row.module == '*' && row.alias == '*'){
+                                    return true;
+                                }
+                                return !rows.some(function(item) {
+                                    return $.inArray(item.key, [
+                                        [row.group, '*', '*'].join('-')
+                                    ]) > -1;
+                                });
+                            })
+                            .map(function(row) {
+                                return {
+                                    group: row.group,
+                                    module: row.module,
+                                    alias: row.alias
+                                };
+                            });
+
+                        $.post({
+                            url: url,
+                            type: 'POST',
+                            data: {acl: JSON.stringify(result)},
+                            success: function() {
+                                $.messager.success('操作提示', '操作成功');
+                                self.dialog.dialog('close');
+                            },
+                            error: function(xhr) {
+                                $.messager.error('操作提示', xhr.responseJSON ? xhr.responseJSON.message : '操作失败');
+                            }
+                        });
+                    }
+                },{
+                    text: '取消',
+                    iconCls: 'fa fa-close',
+                    handler: function() {
+                        self.dialog.dialog('close');
+                    }
+                }]
+            });
         },
         // 筛选
         filter: function () {

@@ -112,7 +112,7 @@
                 iconCls: iconCls,
                 modal: true,
                 border: 'thin',
-                width: width || '360px',
+                width: width || 360,
                 constrain: true,
                 href: url,
                 onLoad: function() {
