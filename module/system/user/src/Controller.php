@@ -69,7 +69,7 @@ class Controller extends BaseController
             });
         }
 
-        $data = $user->simplePaginate($request->input('rows', 10));
+        $data = $user->paginate($request->input('rows', 10));
         $data->each(function ($row) {
             $row->roles;
         });
