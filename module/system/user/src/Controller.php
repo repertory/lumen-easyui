@@ -69,7 +69,11 @@ class Controller extends BaseController
             });
         }
 
-        return $user->paginate($request->input('rows', 10));
+        $data = $user->simplePaginate($request->input('rows', 10));
+        $data->each(function ($row) {
+            $row->roles;
+        });
+        return $data;
     }
 
     public function getCreate()
@@ -112,4 +116,106 @@ class Controller extends BaseController
         Model\User::whereIn('id', $request->input('ids'))->delete();
     }
 
+    public function getRole(Request $request)
+    {
+        $data = Model\User::findOrFail($request->input('id', 0));
+        return view('module::role', ['data' => $data->roles]);
+    }
+
+    public function postRole(Request $request)
+    {
+        $data = Model\User::findOrFail($request->input('id', 0));
+        $roles = $request->input('roles', []);
+        $data->roles()->detach();
+        $data->roles()->attach($roles);
+    }
+
+    public function postRoleCombotree()
+    {
+        return Model\Role::where('parent', 0)->get()->each(function ($row) {
+            $row->children;
+        });
+    }
+
+    public function getAcl(Request $request)
+    {
+        $data = Model\Acl::where('user_id', $request->input('id', 0))
+            ->get()
+            ->each(function ($row) {
+                $row->key = implode('-', [$row->group, $row->module, $row->alias]);
+            })
+            ->unique('key')
+            ->values();
+        return view('module::acl', ['data' => $data]);
+    }
+
+    public function postAcl(Request $request)
+    {
+        $id = $request->input('id', 0);
+        $acl = collect(json_decode($request->input('acl', '[]'), true));
+        Model\Acl::where('user_id', $id)->delete();
+        $acl->map(function ($row) use ($id) {
+            array_set($row, 'user_id', $id);
+            return Model\Acl::create($row);
+        });
+    }
+
+    public function postModule()
+    {
+        $children = Model\Module::where('menu', true)
+            ->get()
+            ->map(function ($row) {
+                $acl = collect($row->acl)
+                    ->filter(function ($status) {
+                        return $status;
+                    })
+                    ->map(function ($status, $alias) {
+                        return $alias;
+                    })
+                    ->values();
+
+                return [
+                    'parent' => $row->group,
+                    'name' => $row->name,
+                    'group' => $row->module_group,
+                    'module' => $row->module_module,
+                    'alias' => '*',
+                    'key' => implode('-', [$row->module_group, $row->module_module, '*']),
+                    'children' => $acl->map(function ($alias) use ($row) {
+                        return [
+                            'parent' => $row->name,
+                            'name' => $alias,
+                            'group' => $row->module_group,
+                            'module' => $row->module_module,
+                            'alias' => $alias,
+                            'key' => implode('-', [$row->module_group, $row->module_module, $alias]),
+                        ];
+                    }),
+                ];
+            })
+            ->groupBy('group')
+            ->map(function ($children, $group) {
+                $name = array_get($children, '0.parent');
+                return [
+                    'parent' => null,
+                    'name' => $name,
+                    'group' => $group,
+                    'module' => '*',
+                    'alias' => '*',
+                    'key' => implode('-', [$group, '*', '*']),
+                    'children' => $children,
+                ];
+            })
+            ->values();
+
+        return [[
+            'parent' => null,
+            'name' => '所有权限',
+            'group' => '*',
+            'module' => '*',
+            'alias' => '*',
+            'key' => implode('-', ['*', '*', '*']),
+            'children' => $children,
+        ]];
+    }
 }

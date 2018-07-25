@@ -141,11 +141,11 @@ class Controller extends BaseController
 
     public function postAcl(Request $request)
     {
-        $roleId = $request->input('id', 0);
+        $id = $request->input('id', 0);
         $acl = collect(json_decode($request->input('acl', '[]'), true));
-        Model\Acl::where('role_id', $roleId)->delete();
-        $acl->map(function ($row) use ($roleId) {
-            array_set($row, 'role_id', $roleId);
+        Model\Acl::where('role_id', $id)->delete();
+        $acl->map(function ($row) use ($id) {
+            array_set($row, 'role_id', $id);
             return Model\Acl::create($row);
         });
     }

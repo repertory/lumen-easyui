@@ -5,6 +5,10 @@
         <a class="easyui-linkbutton" iconCls="fa fa-edit" plain="true" method="form" url="{{ module_url('system/user/edit', ['id' => ':id']) }}"
             selected="true">编辑</a>
         <a class="easyui-linkbutton" iconCls="fa fa-trash" plain="true" method="destroy" url="{{ module_url('system/user/delete') }}">删除</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-group" plain="true" method="form" url="{{ module_url('system/user/role', ['id' => ':id']) }}"
+            selected="true">角色</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-universal-access" plain="true" method="acl" url="{{ module_url('system/user/acl', ['id' => ':id']) }}"
+            hide-sm>权限</a>
         <a class="easyui-linkbutton" iconCls="fa fa-filter" plain="true" method="filter">筛选</a>
         <a class="easyui-splitbutton" iconCls="fa fa-file-excel-o" plain="true" splitbutton="export">导出</a>
         <a class="easyui-splitbutton" iconCls="fa fa-print" plain="true" splitbutton="print" hide-xs>打印</a>
@@ -68,6 +72,11 @@
                 columns: [[
                     {field:'name',title:'姓名',width:120,sortable:true,export:true},
                     {field:'email',title:'邮箱',width:300,sortable:true,export:true},
+                    {field:'roles',title:'角色',width:100,sortable:false,export:true,formatter:function(roles){
+                        return roles.map(function(role){
+                            return role.name;
+                        }).join(',');
+                    }},
                     {field:'created_at',title:'创建时间',width:150,sortable:true,export:true},
                     {field:'updated_at',title:'修改时间',width:150,sortable:true,export:true},
                 ]],
@@ -178,6 +187,87 @@
                 });
             }
         },
+        // 权限
+        acl: function(e) {
+            var row = this.datagrid.datagrid('getSelected');
+            if(!row) return;
+
+            var self = this;
+            var url = $(e).attr('url').replace(escape(':id'), row.id);
+            var title = $(e).attr('title') || $(e).text();
+            var iconCls = $(e).attr('iconCls');
+
+            this.dialog.dialog({
+                title: title,
+                iconCls: iconCls,
+                modal: true,
+                border: 'thin',
+                width: 640,
+                constrain: true,
+                href: url,
+                onLoad: function() {
+                    self.dialog.dialog('center');
+                },
+                buttons:[{
+                    text: '保存',
+                    iconCls: 'fa fa-save',
+                    handler: function() {
+                        var child = self.dialog.find('[module]');
+                        if(!child) return;
+
+                        var rows = child.options().treegrid.treegrid('getCheckedNodes');
+                        var result = rows
+                            .filter(function(row) {
+                                if(row.group == '*' || row.module == '*' || row.alias == '*'){
+                                    return true;
+                                }
+                                return !rows.some(function(item) {
+                                    return $.inArray(item.key, [
+                                        [row.group, '*', '*'].join('-'),
+                                        [row.group, row.module, '*'].join('-')
+                                    ]) > -1;
+                                });
+                            })
+                            .filter(function(row) {
+                                if(row.group == '*' && row.module == '*' && row.alias == '*'){
+                                    return true;
+                                }
+                                return !rows.some(function(item) {
+                                    return $.inArray(item.key, [
+                                        [row.group, '*', '*'].join('-')
+                                    ]) > -1;
+                                });
+                            })
+                            .map(function(row) {
+                                return {
+                                    group: row.group,
+                                    module: row.module,
+                                    alias: row.alias
+                                };
+                            });
+
+                        $.post({
+                            url: url,
+                            type: 'POST',
+                            data: {acl: JSON.stringify(result)},
+                            success: function() {
+                                $.messager.success('操作提示', '操作成功');
+                                self.dialog.dialog('close');
+                            },
+                            error: function(xhr) {
+                                $.messager.error('操作提示', xhr.responseJSON ? xhr.responseJSON.message : '操作失败');
+                            }
+                        });
+                    }
+                },{
+                    text: '取消',
+                    iconCls: 'fa fa-close',
+                    handler: function() {
+                        self.dialog.dialog('close');
+                    }
+                }]
+            });
+        },
         // 筛选
         filter: function () {
             this.filterbar = !this.filterbar;
@@ -191,6 +281,9 @@
                     type: 'textbox',
                     options: {validType: {email: true}},
                     op: ['equal', 'contains', 'notcontains', 'beginwith', 'endwith']
+                }, {
+                    field: 'roles',
+                    type: 'label'
                 }, {
                     field: 'created_at',
                     type: 'datetimebox',

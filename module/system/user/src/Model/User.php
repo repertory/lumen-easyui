@@ -18,4 +18,14 @@ class User extends Model
         'password', 'remember_token'
     ];
 
+    public function roles()
+    {
+        return $this->belongsToMany(
+            'Module\System\User\Model\Role',
+            'easyui_role_user',
+            'user_id',
+            'role_id'
+        );
+    }
+
 }
