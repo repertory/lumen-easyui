@@ -279,6 +279,10 @@
                     type: 'textbox',
                     op: ['equal', 'contains', 'notcontains', 'beginwith', 'endwith']
                 }, {
+                    field: 'users',
+                    type: 'numberbox',
+                    op: ['equal', 'notequal', 'less', 'lessorequal', 'greater', 'greaterorequal']
+                }, {
                     field: 'created_at',
                     type: 'datetimebox',
                     op: ['equal', 'notequal', 'less', 'lessorequal', 'greater', 'greaterorequal']
