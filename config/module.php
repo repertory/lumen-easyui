@@ -7,6 +7,7 @@ return [
         'prefix' => '', // TODO 留空时需要屏蔽默认的首页路由
         'middleware' => [
             Illuminate\Session\Middleware\StartSession::class,
+            Module\Wangdong\Easyui\VerifyCsrfToken::class,
             Module\Wangdong\Easyui\Middleware::class,
         ],
     ],
