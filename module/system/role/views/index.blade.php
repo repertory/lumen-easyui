@@ -8,6 +8,7 @@
         <a class="easyui-linkbutton" iconCls="fa fa-universal-access" plain="true" method="acl" url="{{ module_url('system/role/acl', ['id' => ':id']) }}"
             hide-sm>权限</a>
         <a class="easyui-linkbutton" iconCls="fa fa-filter" plain="true" method="filter">筛选</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-refresh" plain="true" method="refresh">刷新</a>
         <a class="easyui-splitbutton" iconCls="fa fa-file-excel-o" plain="true" splitbutton="export">导出</a>
         <a class="easyui-splitbutton" iconCls="fa fa-print" plain="true" splitbutton="print" hide-xs>打印</a>
         <a class="easyui-linkbutton" iconCls="fa fa-folder-o" plain="true" method="collapse" hide-xs>收起</a>
@@ -294,6 +295,10 @@
                 }
             }
         },
+        // 刷新
+        refresh: function() {
+            this.treegrid.treegrid('reload');
+        },
         // 导出
         export: function (e) {
             var type = $(e).attr('export');
@@ -348,6 +353,7 @@
                 this.treegrid.treegrid('expandAll');
             }
         },
+        // 标签打开
         open: function(e) {
             var row = this.treegrid.treegrid('getSelected');
             if(!row) return;
