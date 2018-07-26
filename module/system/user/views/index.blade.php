@@ -281,7 +281,6 @@
                 }, {
                     field: 'email',
                     type: 'textbox',
-                    options: {validType: {email: true}},
                     op: ['equal', 'contains', 'notcontains', 'beginwith', 'endwith']
                 }, {
                     field: 'roles',
