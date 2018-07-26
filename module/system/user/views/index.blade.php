@@ -301,7 +301,11 @@
                 } catch (e) {
                 }
                 // 关闭筛选时清空条件
-                this.datagrid.datagrid({filterRules: []});
+                this.datagrid.datagrid({
+                    filterRules: [],
+                    clientPaging: false,
+                    remoteFilter: true
+                });
             }
         },
         // 导出
