@@ -21,11 +21,11 @@
 </div>
 
 <style type="text/css">
-    :host dl {
+    :module dl {
         margin: 24px 0;
     }
 
-    :host dl dd {
+    :module dl dd {
         margin: 16px;
         max-width: 360px;
     }

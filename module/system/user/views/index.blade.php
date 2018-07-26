@@ -33,10 +33,10 @@
 </div>
 
 <script type="text/javascript">
-    $(':host').options({
-        datagrid: $('.datagrid', ':host'),
-        toolbar: $('.toolbar', ':host'),
-        dialog: $('.dialog', ':host'),
+    $(':module').options({
+        datagrid: $('.datagrid', ':module'),
+        toolbar: $('.toolbar', ':module'),
+        dialog: $('.dialog', ':module'),
         request: {!! $request->toJson() !!},
         filterbar: false,
         // 初始化
@@ -48,16 +48,16 @@
         // 事件监听
         event: function () {
             var self = this;
-            $('[method]', ':host').on('click', function () {
+            $('[method]', ':module').on('click', function () {
                 var method = $(this).attr('method');
                 typeof self[method] === 'function' && self[method].call(self, this);
             });
         },
         // 初始化下拉菜单
         initSplitbutton: function() {
-            $('[splitbutton]', ':host').each(function() {
+            $('[splitbutton]', ':module').each(function() {
                 var splitbutton = $(this).attr('splitbutton');
-                var menu = $('.splitbutton > .' + splitbutton, ':host');
+                var menu = $('.splitbutton > .' + splitbutton, ':module');
                 menu && $(this).splitbutton({menu: menu});
             });
         },

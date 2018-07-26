@@ -10,9 +10,9 @@
 </div>
 
 <script type="text/javascript">
-    $(':host').options({
-        toolbar: $('.toolbar', ':host'),
-        treegrid: $('.treegrid', ':host'),
+    $(':module').options({
+        toolbar: $('.toolbar', ':module'),
+        treegrid: $('.treegrid', ':module'),
         data: {!! $data->toJson() !!},
         init: function () {
             this.event();
@@ -20,7 +20,7 @@
         },
         event: function () {
             var self = this;
-            $('[method]', ':host').on('click', function () {
+            $('[method]', ':module').on('click', function () {
                 var method = $(this).attr('method');
                 typeof self[method] === 'function' && self[method].call(self, this);
             });

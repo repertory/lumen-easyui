@@ -12,7 +12,8 @@
         <a class="easyui-splitbutton" iconCls="fa fa-print" plain="true" splitbutton="print" hide-xs>打印</a>
         <a class="easyui-linkbutton" iconCls="fa fa-folder-o" plain="true" method="collapse" hide-xs>收起</a>
         <a class="easyui-linkbutton" iconCls="fa fa-folder-open-o" plain="true" method="expand" hide-xs>展开</a>
-        <a class="easyui-linkbutton" iconCls="fa fa-user" plain="true" method="open" hide-xs url="{{ module_url('system/user', ['role' => ':id']) }}">用户管理</a>
+        <a class="easyui-linkbutton" iconCls="fa fa-user" plain="true" method="open" url="{{ module_url('system/user', ['role' => ':id']) }}"
+            title="用户管理" hide-xs>用户</a>
     </div>
 
     <div class="splitbutton" style="display: none;">
@@ -34,10 +35,10 @@
 </div>
 
 <script type="text/javascript">
-    $(':host').options({
-        treegrid: $('.treegrid', ':host'),
-        toolbar: $('.toolbar', ':host'),
-        dialog: $('.dialog', ':host'),
+    $(':module').options({
+        treegrid: $('.treegrid', ':module'),
+        toolbar: $('.toolbar', ':module'),
+        dialog: $('.dialog', ':module'),
         filterbar: false,
         // 初始化
         init: function () {
@@ -48,16 +49,16 @@
         // 事件监听
         event: function () {
             var self = this;
-            $('[method]', ':host').on('click', function () {
+            $('[method]', ':module').on('click', function () {
                 var method = $(this).attr('method');
                 typeof self[method] === 'function' && self[method].call(self, this);
             });
         },
         // 初始化下拉菜单
         initSplitbutton: function() {
-            $('[splitbutton]', ':host').each(function() {
+            $('[splitbutton]', ':module').each(function() {
                 var splitbutton = $(this).attr('splitbutton');
-                var menu = $('.splitbutton > .' + splitbutton, ':host');
+                var menu = $('.splitbutton > .' + splitbutton, ':module');
                 menu && $(this).splitbutton({menu: menu});
             });
         },

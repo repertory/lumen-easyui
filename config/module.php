@@ -11,6 +11,20 @@ return [
         ],
     ],
 
+    // 路由设置
+    'router' => function ($router, $module) {
+        $method = array_get($module, 'method');
+        $route = array_get($module, 'route');
+        $controller = array_get($module, 'controller');
+        $action = array_get($module, 'action');
+        $middleware = array_get($module, 'composer.extra.laravel-module.middleware', []);
+
+        // 验证控制器中对应方法是否存在，否则模块路由无效
+        if (method_exists($controller, $action)) {
+            $router->$method($route, ['uses' => "{$controller}@{$action}", 'middleware' => $middleware]);
+        }
+    },
+
     // 复制文件(支持闭包)
     'publishes' => function () {
         return [
