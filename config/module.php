@@ -14,10 +14,10 @@ return [
 
     // 路由设置
     'router' => function ($router, $module) {
-        $method = array_get($module, 'method');
+        $method = strtolower($_SERVER['REQUEST_METHOD']);
         $route = array_get($module, 'route');
         $controller = array_get($module, 'controller');
-        $action = array_get($module, 'action');
+        $action = camel_case(implode('_', [$method, array_first(array_get($module, 'subfix')) ? : 'index']));
         $middleware = array_get($module, 'composer.extra.laravel-module.middleware', []);
 
         // 验证控制器中对应方法是否存在，否则模块路由无效
