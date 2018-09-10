@@ -16,7 +16,9 @@
             "config": {
                 "name": "system/role"
             },
-            "middleware": [],
+            "middleware": [
+                "Module\\Laravel\\Easyui\\Middleware"
+            ],
             "module": {
                 "name": "system/role",
                 "time": "2018-07-06T09:06:57+08:00",
@@ -27,7 +29,7 @@
                 }
             }
         },
-        "wangdong-easyui": {
+        "laravel-easyui": {
             "module": {
                 "group": "系统管理",
                 "name": "角色管理",
