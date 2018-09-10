@@ -1,6 +1,6 @@
 # lumen-easyui
 
-基于`lumen`框架和`wangdong/laravel-module-easyui`包组成
+基于`lumen`框架和`wangdong/laravel-easyui`包组成
 
 ## docker环境
 
@@ -29,7 +29,7 @@ docker-compose exec php php artisan module:publish
 docker-compose exec php composer dumpautoload
 
 # 初始化数据
-docker-compose exec php php artisan module.wangdong.easyui:migrate
+docker-compose exec php php artisan laravel.easyui:migrate
 ```
 
 > 开发
@@ -37,7 +37,7 @@ docker-compose exec php php artisan module.wangdong.easyui:migrate
 功能模块目录`module/group_name/module_name`
 
 ```
-docker-compose exec php php artisan module.wangdong.easyui:init group_name/module_name
+docker-compose exec php php artisan laravel.easyui:init group_name/module_name
 ```
 
 ### 开发环境
