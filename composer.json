@@ -1,6 +1,6 @@
 {
     "name": "wangdong/lumen-easyui",
-    "description": "基于wangdong/laravel-module-easyui的系统",
+    "description": "基于wangdong/laravel-easyui的系统",
     "keywords": [
         "wangdong",
         "module",
@@ -14,7 +14,7 @@
         "php": ">=7.1.3",
         "laravel/lumen-framework": "5.6.*",
         "vlucas/phpdotenv": "~2.2",
-        "wangdong/laravel-module-easyui": "^1.0"
+        "wangdong/laravel-easyui": "^1.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
