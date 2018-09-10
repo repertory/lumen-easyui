@@ -17,6 +17,7 @@
                 "name": "system/user"
             },
             "middleware": [
+                "Illuminate\\Session\\Middleware\\StartSession",
                 "Module\\Laravel\\Easyui\\Middleware"
             ],
             "module": {
