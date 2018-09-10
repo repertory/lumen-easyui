@@ -16,7 +16,9 @@
             "config": {
                 "name": "system/user"
             },
-            "middleware": [],
+            "middleware": [
+                "Module\\Laravel\\Easyui\\Middleware"
+            ],
             "module": {
                 "name": "system/user",
                 "time": "2018-07-06T09:25:23+08:00",
@@ -27,7 +29,7 @@
                 }
             }
         },
-        "wangdong-easyui": {
+        "laravel-easyui": {
             "module": {
                 "group": "系统管理",
                 "name": "用户管理",
